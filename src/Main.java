@@ -1,48 +1,50 @@
 import Data.Driver;
 import Data.Vehicle;
 
-import java.util.logging.*;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
+        ApplicationLogger logger = new ApplicationLogger();
         Import importObj = new Import();
-        System.out.println("Import don");
+        logger.logInfo( "Import finished");
+        
+        
+
         //Checks for arugments java Prgramm is called when executed.
         if (args.length > 2 && args[0].length() > 0 && args[1].length() > 0) {
             //command mapping
             switch (args[0]) {
                 case "--fahrersuche":
-                    System.out.println("Case 01");
+                    logger.logDebug( "Case 01 of command Mapping selected");
                     outputList(importObj.findDriverByNames(args[1]));
                     break;
                 case "--fahrzeugsuche":
-                    System.out.println("Case 02");
+                    logger.logDebug( "Case 02 of command Mapping selected");
                     outputList(importObj.findVehicleBySearchTerm(args[1]));
                     break;
                 case "--fahrerZeitpunkt":
+                    logger.logDebug( "Case 03 of command Mapping selected");
                     break;
                 case "--fahrerDatum=":
+                    logger.logDebug( "Case 04 of command Mapping selected");
                     break;
                 default:
-                    System.out.println("Invalid Command");
+                    logger.logDebug( "default Case of command Mapping selected: Invalid Command");
+                    logger.logInfo( "Invalid Command");
                     break;
             }
 
         }
         //Test aria: Loose Test Calls
-        System.out.println("Import finished");
+//        List<Driver> driverData = importObj.findDriverByNames("Tom");
+//        outputList(driverData);
+//
+//        List<Vehicle> vehicleData = importObj.findVehicleBySearchTerm("BMW");
+//        outputList(vehicleData);
 
-        int a = importObj.driverMap.size();
-        System.out.println(a);
-
-        List<Driver> driverData = importObj.findDriverByNames("Tom");
-        outputList(driverData);
-
-        List<Vehicle> vehicleData = importObj.findVehicleBySearchTerm("BMW");
-        outputList(vehicleData);
+        List<Driver> driverData2 = importObj.findDriverByVehicleIDandDate("SS-BC-4566", "2024-01-01T18:20:00");
+        System.out.println(driverData2.get(0).getFirstName());
     }
 
     public static void outputList(List<?> listedData) {
@@ -81,5 +83,12 @@ public class Main {
             System.out.println("Keine Daten gefunden");
         }
     }
+//
+//    private static String[] clearArgs(String[] args) {
+//        for (int i = 0; i < args.length; i++) {
+//            args[i] = args[i].trim().replace("\\s", "");
+//        }
+//        return args;
+//    }
 
 }

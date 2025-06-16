@@ -2,10 +2,9 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeParseException;
+import java.util.*;
 
 import Data.Driver;
 import Data.Trip;
@@ -18,8 +17,10 @@ public class Import {
     Map<String, Driver> driverMap;
     Map<String, Vehicle> vehicleMap;
     Map<String, Trip> tripMap;
+    ApplicationLogger logger;
 
     public Import() {
+        logger = new ApplicationLogger();
         driverMap = new HashMap<>();
         vehicleMap = new HashMap<>();
         tripMap = new HashMap<>();
@@ -31,9 +32,9 @@ public class Import {
                 saveData(line);
             }
         } catch (FileNotFoundException e) {
-            System.out.println("File not found");
+            logger.logWarning("File not found");
         } catch (IOException e) {
-            System.out.println("Error reading file: " + e.getMessage());
+            logger.logError("Error reading file: " + e.getMessage(), e);
         }
     }
 
@@ -46,15 +47,16 @@ public class Import {
                 //Test for Vihicle or Driver Primary Key
                 if (data[0].charAt(0) == 'V') {
                     Vehicle vehicleObj = new Vehicle(data[0], data[1], data[2], data[3]);
+                    //When Vehicle dosent exists writing in Map. Id as Key
                     if (vehicleMap.get(data[0]) == null) {
-                        //put Vehicle in Hash map. Id as Atomary Key
+                        //put Vehicle in Hash map. Id as Key
                         vehicleMap.put(data[0], vehicleObj);
                     }
 
                 } else {
                     //Writing Data as Driver Obj
                     Driver driverObj = new Driver(data[0], data[1], data[2], data[3]);
-                    //When Driver dosent exists writing in Map. Id as Atomary Key
+                    //When Driver dosent exists writing in Map. Id as Key
                     if (driverMap.get(data[0]) == null) {
                         //put Driver in Hash map
                         driverMap.put(data[0], driverObj);
@@ -65,7 +67,7 @@ public class Import {
             case 6:
                 //Creating Trip OBJ
                 Trip trip = new Trip(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]), data[4], data[5]);
-                //Check if Trip is allready existing
+                //Check if Trip is allready existing thru combined Primary Key
                 if (tripMap.get(data[0] + data[1]) == null) {
                     //Putting trip in Hash map. Combinded Primary Key
                     tripMap.put(data[0] + data[1], trip);
@@ -94,7 +96,7 @@ public class Import {
     public List<Driver> findDriverByNames(String name) {
         List<Driver> foundDrivers = new ArrayList<>();
         String[] splitName;
-        
+
         if (name.contains(" ")) {
             splitName = name.split(" ");
         } else {
@@ -105,24 +107,70 @@ public class Import {
             String firstNameDriver = driver.getFirstName();
             String lastNameDriver = driver.getLastName();
 
-            if (firstNameDriver.contains(splitName[0]) || 
-                (splitName.length > 1 && lastNameDriver.contains(splitName[1]))) {
+            if (firstNameDriver.contains(splitName[0]) ||
+                    (splitName.length > 1 && lastNameDriver.contains(splitName[1]))) {
                 foundDrivers.add(driver);
             }
         }
         return foundDrivers;
     }
 
-    public List<Vehicle> findVehicleBySearchTerm(String searchTerm){
+    public List<Vehicle> findVehicleBySearchTerm(String searchTerm) {
         //List of all found Objects whith sertch Propertys
         List<Vehicle> foundVehicles = new ArrayList<>();
 
-        for(Vehicle vehicle : vehicleMap.values()){
+        for (Vehicle vehicle : vehicleMap.values()) {
             //Checking what user is looking for
-            if(vehicle.getManufacturer().contains(searchTerm) || vehicle.getVehicleBrand().contains(searchTerm) || vehicle.getLicencePlate().contains(searchTerm)){
+            if (vehicle.getManufacturer().contains(searchTerm) || vehicle.getVehicleBrand().contains(searchTerm) || vehicle.getLicencePlate().contains(searchTerm)) {
                 foundVehicles.add(vehicle);
             }
         }
         return foundVehicles;
     }
+
+    //New_Entity:fahrerId,fahrzeugId,startKm,endKm,startzeit,endzeit
+    //F029,V001,156127,156383,2024-01-01T18:17:53,2024-01-01T20:08:53
+    public List<Driver> findDriverByVehicleIDandDate(String vehicleLicencPlate, String date) {
+        //even if only on driver can be found
+        List<Driver> foundDriver = new ArrayList<>();
+
+        //loopin through trips to find a trip with correct timeframe
+        for (Trip trip : tripMap.values()) {
+            if (timeWithin(trip.getStartTime(), trip.getEndTime(), date)) {
+                //checking if given vehicle is correct tripvehicle
+                for (Vehicle vehicletrip : vehicleMap.values()) {
+                    if (vehicletrip.getLicencePlate().equals(vehicleLicencPlate)) {
+                        //adding driver to list if correct vehicle and timeframe is found
+                        foundDriver.add(driverMap.get(trip.getDriverID()));
+                    }else logger.logDebug("Trip found but not with correct vehicle");
+                }
+                return foundDriver;
+            } else logger.logDebug("Trip is not within correct timeframe");
+        }
+
+        return null;
+    }
+
+    private boolean timeWithin(String startTime, String endTime, String date) {
+        try {
+            //Parsin in Date Object for easy comparision
+            LocalDateTime start = LocalDateTime.parse(startTime);
+            LocalDateTime end = LocalDateTime.parse(endTime);
+            LocalDateTime checkDate = LocalDateTime.parse(date);
+            logger.logDebug("Starttime: " + start + " Endtime: " + end + " Date: " + checkDate);
+
+            if ((checkDate.equals(start) || checkDate.equals(end)) || (checkDate.isAfter(start) && checkDate.isBefore(end))) {
+
+                logger.logDebug("Date is equal ore within start and end");
+                return true;
+            } else {
+                return false;
+            }
+        } catch (DateTimeParseException e) {
+            logger.logError("Error parsing date", e);
+        }
+        return false;
+    }
+
+
 }
