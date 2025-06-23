@@ -9,14 +9,15 @@ public class Main {
         Import importObj = new Import();
         logger.logInfo("Import done");
 
-        //Checks for arugments args java Prgramm is called when executed.
+        String argumentData[] = getArgsData(args);
+
+        //Checks for arugments args java Programm is called when executed.
         for (String arg : args) {
-            if (arg.startsWith("--fahrersuche=")){
-                logger.logDebug( "Case 01 of command Mapping selected: --fahrersuche=");
+            if (arg.startsWith("--fahrersuche=")) {
+                logger.logDebug("Case 01 of command Mapping selected: --fahrersuche=");
                 //Selecting correct Data from Request.
 
                 //Calling output Method and Buissiness logic Sertch funktion
-                outputList(importObj.findDriverByNames(args[1]));
             }
         }
 //        if (args.length > 2 && args[0].length() > 0 && args[1].length() > 0) {
@@ -93,18 +94,36 @@ public class Main {
 //                System.out.println("Startzeit: " + trip.getStartTime());
 //                System.out.println("Endzeit: " + trip.getEndTime());
 //            } output Vehicle obj
-            else if (data instanceof Vehicle) {
-                Vehicle vehicle = (Vehicle) data;
-                System.out.println("=== Fahrzeug ===");
-                System.out.println("Fahrzeug-ID: " + vehicle.getvID());
-                System.out.println("Marke: " + vehicle.getVehicleBrand());
-                System.out.println("Kennzeichen: " + vehicle.getLicencePlate());
-            }
-            System.out.println("-------------------");
+                else if (data instanceof Vehicle) {
+                    Vehicle vehicle = (Vehicle) data;
+                    System.out.println("=== Fahrzeug ===");
+                    System.out.println("Fahrzeug-ID: " + vehicle.getvID());
+                    System.out.println("Marke: " + vehicle.getVehicleBrand());
+                    System.out.println("Kennzeichen: " + vehicle.getLicencePlate());
+                }
+                System.out.println("-------------------");
             }
         } else {
             System.out.println("Keine Daten gefunden");
         }
+    }
+
+    public static String[] getArgsData(String[] argument) {
+        //First splitting Command form Data
+        String[] argData = argument[0].split("=",2);
+
+        //Further splitting Data in Array
+        for (String data : argData) {
+            if (data.contains(";")) {
+                argData = data.split(";");
+            } else {
+                argData[0] = data;
+            }
+        }
+        for (int i = 0; i < argData.length; i++) {
+            System.out.println("argData[" + i + "]: " + argData[i]);
+        }
+        return argData == null ? new String[0] : argData;
     }
 //
 //    private static String[] clearArgs(String[] args) {
