@@ -2,9 +2,11 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
+import java.util.logging.Logger;
 
 import Data.Driver;
 import Data.Trip;
@@ -67,15 +69,16 @@ public class Import {
             case 6:
                 //Creating Trip OBJ
                 Trip trip = new Trip(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]), data[4], data[5]);
-                //Check if Trip is allready existing thru combined Primary Key
-                if (tripMap.get(data[0] + data[1]) == null) {
-                    //Putting trip in Hash map. Combinded Primary Key
-                    tripMap.put(data[0] + data[1], trip);
+                //Check if Trip is allready existing true combined Primary Key
+
+                if (tripMap.get(data[0] +"_"+ data[1] +"_"+ data[4]) == null) {
+                    //Putting trip in Hash map. Combinded Key
+                    tripMap.put(data[0] +"_"+ data[1] +"_"+ data[4], trip);
                 }
                 break;
 
             default:
-                System.out.println("Invalid Data");
+                logger.logWarning("While Importing Data: Invalid Dataset found");
                 break;
         }
     }
@@ -93,6 +96,7 @@ public class Import {
         }
     }
 
+    //Fahrer suche
     public List<Driver> findDriverByNames(String name) {
         List<Driver> foundDrivers = new ArrayList<>();
         String[] splitName;
@@ -115,6 +119,7 @@ public class Import {
         return foundDrivers;
     }
 
+    //Fahrzeug suche
     public List<Vehicle> findVehicleBySearchTerm(String searchTerm) {
         //List of all found Objects whith sertch Propertys
         List<Vehicle> foundVehicles = new ArrayList<>();
@@ -128,48 +133,123 @@ public class Import {
         return foundVehicles;
     }
 
+    //Feature1
     //New_Entity:fahrerId,fahrzeugId,startKm,endKm,startzeit,endzeit
     //F029,V001,156127,156383,2024-01-01T18:17:53,2024-01-01T20:08:53
     public List<Driver> findDriverByVehicleIDandDate(String vehicleLicencPlate, String date) {
         //even if only on driver can be found
         List<Driver> foundDriver = new ArrayList<>();
 
-        //loopin through trips to find a trip with correct timeframe
+        //loopin through trips to find all set parameters.
         for (Trip trip : tripMap.values()) {
-            if (timeWithin(trip.getStartTime(), trip.getEndTime(), date)) {
-                //checking if given vehicle is correct tripvehicle
-                for (Vehicle vehicletrip : vehicleMap.values()) {
-                    if (vehicletrip.getLicencePlate().equals(vehicleLicencPlate)) {
-                        //adding driver to list if correct vehicle and timeframe is found
-                        foundDriver.add(driverMap.get(trip.getDriverID()));
-                    }else logger.logDebug("Trip found but not with correct vehicle");
-                }
-                return foundDriver;
-            } else logger.logDebug("Trip is not within correct timeframe");
-        }
+            //geting corresponding vehicle obj from Trip
+            Vehicle vehicle = vehicleMap.get(trip.getVehicleID());
 
-        return null;
+            //Checking if vehicle found and if licence plate is equal.
+            if (vehicle != null && vehicle.getLicencePlate().equals(vehicleLicencPlate)) {
+
+                //Checking if timeframe is correct.
+                if (timeWithin(trip.getStartTime(), trip.getEndTime(), date)) {
+                    Driver driver = driverMap.get(trip.getDriverID());
+                    //Checking if driver exists
+                    if(driver != null) {
+                        foundDriver.add(driver);
+                        return foundDriver;
+                    }
+                }
+            }
+
+        }
+        logger.logInfo("Found " + foundDriver.size() + "Drivers for this Date and LicensePlate");
+        //if no dirver is found method returns null
+        return foundDriver.size() == 0 ? null : foundDriver;
     }
 
+    /**
+     * Compars if a Given Time is eaqual or within a timeframe
+     * Sertch Date can be given as Date oder Date and Time.
+     * @param startTime
+     * @param endTime
+     * @param date
+     * @return boolean
+     */
     private boolean timeWithin(String startTime, String endTime, String date) {
+        //Parsing Date in fitting Format
+        LocalDateTime startDateTime = LocalDateTime.parse(startTime);
+        LocalDateTime endDateTime = LocalDateTime.parse(endTime);
+
         try {
-            //Parsin in Date Object for easy comparision
-            LocalDateTime start = LocalDateTime.parse(startTime);
-            LocalDateTime end = LocalDateTime.parse(endTime);
-            LocalDateTime checkDate = LocalDateTime.parse(date);
-            logger.logDebug("Starttime: " + start + " Endtime: " + end + " Date: " + checkDate);
+            if (date.contains("T")) {
+                //Parsin in Date Object with date and time
+                LocalDateTime checkDateTime = LocalDateTime.parse(date);
 
-            if ((checkDate.equals(start) || checkDate.equals(end)) || (checkDate.isAfter(start) && checkDate.isBefore(end))) {
-
-                logger.logDebug("Date is equal ore within start and end");
-                return true;
+                if ((checkDateTime.equals(startDateTime) || checkDateTime.equals(endDateTime)) || (checkDateTime.isAfter(startDateTime) && checkDateTime.isBefore(endDateTime))) {
+                    return true;
+                } else {
+                    return false;
+                }
             } else {
-                return false;
+                // Parsin in Date Object with date only
+                LocalDate startDate = startDateTime.toLocalDate();
+                LocalDate endDate = endDateTime.toLocalDate();
+                LocalDate checkDate = LocalDate.parse(date);
+
+                if ((checkDate.equals(startDate) || checkDate.equals(endDate)) || (checkDate.isAfter(startDate) && checkDate.isBefore(endDate))) {
+                    return true;
+                } else {
+                    return false;
+                }
             }
         } catch (DateTimeParseException e) {
             logger.logError("Error parsing date", e);
         }
         return false;
+    }
+
+
+    //Feature2
+
+    /**
+     * Sertches for all vehicles a Driver had one day. An all other who used the same Vehicle the same day.
+     * @param searchedDriverID
+     * @param searchedDate
+     * @return List of Driver and Licencplat of Vehicle as List
+     */
+    List <String> getUsersVehicleByDateAndDriverID(String searchedDriverID, String searchedDate){
+        List<Driver> foundOtherDrivers = new ArrayList<>();
+        List<Vehicle> foundUsedVehicles = new ArrayList<>();
+        Map <String, String> ergHash = new HashMap<>();
+        List<String> ergList = new ArrayList<>();
+
+        //Sertching all Trips form driver and date to find alle used Vehicles
+        for(Trip trip : tripMap.values()){
+            if(trip.getDriverID().equals(searchedDriverID) && trip.getStartTime().contains(searchedDate)){
+                foundUsedVehicles.add(vehicleMap.get(trip.getVehicleID()));
+            }
+        }
+
+        //Checking all driven vehickels, by serched Driver for other dirvers in same Timeframe
+        for (Vehicle foundvehicle :foundUsedVehicles) {
+            for(Trip trip : tripMap.values()){
+                //The other Drivers has the same vehicle id and Timeframe for ther Trip
+                if (foundvehicle.getvID().equals(trip.getVehicleID()) && !trip.getDriverID().equals(searchedDriverID) && trip.getStartTime().contains(searchedDate)){
+                    Driver otherDriver = driverMap.get(trip.getDriverID());
+                    //Checking if the found driver exists.
+                    if (otherDriver != null) {
+                        foundOtherDrivers.add(driverMap.get(trip.getDriverID()));
+                        //Mapping Driver and Vehicel in ergList ready to return
+                        String erg = otherDriver.getFirstName() + " " + otherDriver.getLastName() + "(" + foundvehicle.getLicencePlate() + ")";
+                        ergList.add(erg);
+                    }else logger.logWarning("Found driver is not in Driver Database");
+
+                }
+            }
+        }
+
+        logger.logInfo("Found: " + foundOtherDrivers.size() + " other drivers");
+        return ergList;
+
+        //Next step
     }
 
 

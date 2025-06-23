@@ -1,5 +1,9 @@
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.logging.*;
+import java.util.logging.Formatter;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
@@ -8,10 +12,6 @@ import java.time.format.DateTimeFormatter;
  * with custom formatting for application logs.
  */
 public class ApplicationLogger{
-    // Constants for configuration
-    private static final String LOG_FILE = "application.log";
-    //private static final DateTimeFormatter dtFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
     // Logger instances for different log levels
     private final Logger debugLogger;
 
@@ -23,8 +23,11 @@ public class ApplicationLogger{
 
     public void setupLogger(){
         try {
+            //Crating rout to log File
+            Files.createDirectories(Paths.get("logs"));
+            String logFilePath = "logs/application.log";
             // Set log level
-            debugLogger.setLevel(Level.FINE);
+            debugLogger.setLevel(Level.ALL);
 
             // Create ConsoleHandler
             ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -32,8 +35,9 @@ public class ApplicationLogger{
             consoleHandler.setFormatter(new SimpleFormatter());
 
             // Create FileHandler
-            FileHandler fileHandler = new FileHandler(LOG_FILE, true);
-            fileHandler.setLevel(Level.FINE);
+            FileHandler fileHandler = new FileHandler(logFilePath, true);
+            //Finding way to set file path to filehandler.
+            fileHandler.setLevel(Level.ALL);
             fileHandler.setFormatter(new SimpleFormatter());
 
             // Remove default handlers and add the custom handlers

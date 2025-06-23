@@ -7,44 +7,67 @@ public class Main {
     public static void main(String[] args) {
         ApplicationLogger logger = new ApplicationLogger();
         Import importObj = new Import();
-        logger.logInfo( "Import finished");
-        
-        
+        logger.logInfo("Import done");
 
-        //Checks for arugments java Prgramm is called when executed.
-        if (args.length > 2 && args[0].length() > 0 && args[1].length() > 0) {
-            //command mapping
-            switch (args[0]) {
-                case "--fahrersuche":
-                    logger.logDebug( "Case 01 of command Mapping selected");
-                    outputList(importObj.findDriverByNames(args[1]));
-                    break;
-                case "--fahrzeugsuche":
-                    logger.logDebug( "Case 02 of command Mapping selected");
-                    outputList(importObj.findVehicleBySearchTerm(args[1]));
-                    break;
-                case "--fahrerZeitpunkt":
-                    logger.logDebug( "Case 03 of command Mapping selected");
-                    break;
-                case "--fahrerDatum=":
-                    logger.logDebug( "Case 04 of command Mapping selected");
-                    break;
-                default:
-                    logger.logDebug( "default Case of command Mapping selected: Invalid Command");
-                    logger.logInfo( "Invalid Command");
-                    break;
+        //Checks for arugments args java Prgramm is called when executed.
+        for (String arg : args) {
+            if (arg.startsWith("--fahrersuche=")){
+                logger.logDebug( "Case 01 of command Mapping selected: --fahrersuche=");
+                //Selecting correct Data from Request.
+
+                //Calling output Method and Buissiness logic Sertch funktion
+                outputList(importObj.findDriverByNames(args[1]));
             }
-
         }
+//        if (args.length > 2 && args[0].length() > 0 && args[1].length() > 0) {
+//            //command mapping
+//            switch (args[0]) {
+//                case "--fahrersuche":
+//                    logger.logDebug( "Case 01 of command Mapping selected");
+//                    outputList(importObj.findDriverByNames(args[1]));
+//                    break;
+//                case "--fahrzeugsuche":
+//                    logger.logDebug( "Case 02 of command Mapping selected");
+//                    outputList(importObj.findVehicleBySearchTerm(args[1]));
+//                    break;
+//                case "--fahrerZeitpunkt":
+//                    logger.logDebug( "Case 03 of command Mapping selected");
+//                    break;
+//                case "--fahrerDatum=":
+//                    logger.logDebug( "Case 04 of command Mapping selected");
+//                    break;
+//                default:
+//                    logger.logDebug( "default Case of command Mapping selected: Invalid Command");
+//                    logger.logInfo( "Invalid Command");
+//                    break;
+//            }
+//        }
+
+
         //Test aria: Loose Test Calls
 //        List<Driver> driverData = importObj.findDriverByNames("Tom");
 //        outputList(driverData);
 //
 //        List<Vehicle> vehicleData = importObj.findVehicleBySearchTerm("BMW");
-//        outputList(vehicleData);
+//        outputList(vehicleData)
 
-        List<Driver> driverData2 = importObj.findDriverByVehicleIDandDate("SS-BC-4566", "2024-01-01T18:20:00");
-        System.out.println(driverData2.get(0).getFirstName());
+//        List<Driver> TestBlitzer1 = importObj.findDriverByVehicleIDandDate("S-MN-9932", "2024-02-14T13:57:43");
+//        if(TestBlitzer1 == null){
+//            System.out.println("Kein Treffer");
+//        }else {
+//            //geting element 0 becaus only one result is expected.
+//            System.out.println("Gefundene Person ist: " + TestBlitzer1.get(0).getFirstName()+ " " + TestBlitzer1.get(0).getLastName());
+//        }
+//
+//        List<String> TestFahrerDatum1 = importObj.getUsersVehicleByDateAndDriverID("F003", "2024-08-13");
+//        if(TestFahrerDatum1 == null){
+//            System.out.println("Kein Treffer");
+//        }else {
+//            for (String driver : TestFahrerDatum1) {
+//                System.out.println("Die gefundenen weitern benutzer des Fahrzeuges: " + driver);
+//            }
+//        }
+
     }
 
     public static void outputList(List<?> listedData) {
@@ -90,5 +113,4 @@ public class Main {
 //        }
 //        return args;
 //    }
-
 }
