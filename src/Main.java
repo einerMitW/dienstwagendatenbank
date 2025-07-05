@@ -1,73 +1,52 @@
 import Data.Driver;
 import Data.Vehicle;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        ApplicationLogger logger = new ApplicationLogger();
+        ApplicationLogger logger = ApplicationLogger.getInstance();
         Import importObj = new Import();
-        logger.logInfo("Import done");
+        logger.logInfo("Import of Data in Projek done \n ------------");
 
         String argumentData[] = getArgsData(args);
-
-        //Checks for arugments args java Programm is called when executed.
-        for (String arg : args) {
-            if (arg.startsWith("--fahrersuche=")) {
-                logger.logDebug("Case 01 of command Mapping selected: --fahrersuche=");
-                //Selecting correct Data from Request.
-
-                //Calling output Method and Buissiness logic Sertch funktion
-            }
+        logger.logDebug("Argument Data: " + Arrays.toString(argumentData));
+        if (argumentData == null || argumentData.length == 0) {
+            logger.logWarning("No arguments found");
+            return;
         }
-//        if (args.length > 2 && args[0].length() > 0 && args[1].length() > 0) {
-//            //command mapping
-//            switch (args[0]) {
-//                case "--fahrersuche":
-//                    logger.logDebug( "Case 01 of command Mapping selected");
-//                    outputList(importObj.findDriverByNames(args[1]));
-//                    break;
-//                case "--fahrzeugsuche":
-//                    logger.logDebug( "Case 02 of command Mapping selected");
-//                    outputList(importObj.findVehicleBySearchTerm(args[1]));
-//                    break;
-//                case "--fahrerZeitpunkt":
-//                    logger.logDebug( "Case 03 of command Mapping selected");
-//                    break;
-//                case "--fahrerDatum=":
-//                    logger.logDebug( "Case 04 of command Mapping selected");
-//                    break;
-//                default:
-//                    logger.logDebug( "default Case of command Mapping selected: Invalid Command");
-//                    logger.logInfo( "Invalid Command");
-//                    break;
-//            }
-//        }
 
-
-        //Test aria: Loose Test Calls
-//        List<Driver> driverData = importObj.findDriverByNames("Tom");
-//        outputList(driverData);
-//
-//        List<Vehicle> vehicleData = importObj.findVehicleBySearchTerm("BMW");
-//        outputList(vehicleData)
-
-//        List<Driver> TestBlitzer1 = importObj.findDriverByVehicleIDandDate("S-MN-9932", "2024-02-14T13:57:43");
-//        if(TestBlitzer1 == null){
-//            System.out.println("Kein Treffer");
-//        }else {
-//            //geting element 0 becaus only one result is expected.
-//            System.out.println("Gefundene Person ist: " + TestBlitzer1.get(0).getFirstName()+ " " + TestBlitzer1.get(0).getLastName());
-//        }
-//
-//        List<String> TestFahrerDatum1 = importObj.getUsersVehicleByDateAndDriverID("F003", "2024-08-13");
-//        if(TestFahrerDatum1 == null){
-//            System.out.println("Kein Treffer");
-//        }else {
-//            for (String driver : TestFahrerDatum1) {
-//                System.out.println("Die gefundenen weitern benutzer des Fahrzeuges: " + driver);
-//            }
-//        }
+        switch (argumentData[0]) {
+            case "--fahrersuche":
+                logger.logInfo("Case 01 of command Mapping selected: --fahrersuche");
+                outputList(importObj.findDriverByNames(argumentData[1]));
+                break;
+            case "--fahrzeugsuche":
+                logger.logInfo("Case 02 of command Mapping selected: --fahrzeugsuche");
+                outputList(importObj.findVehicleBySearchTerm(argumentData[1]));
+                break;
+            case "--fahrerZeitpunkt":
+                logger.logInfo("Case 03 of command Mapping selected: --fahrerZeitpunkt");
+                if (argumentData.length != 3) {
+                    logger.logWarning("Wrong number of arguments for --fahrerZeitpunkt");
+                }else {
+                outputList(importObj.findDriverByVehicleIDandDate(argumentData[1], argumentData[2]));
+                }
+                break;
+            case "--fahrerDatum":
+                logger.logInfo("Case 04 of command Mapping selected: --fahrerDatum");
+                if (argumentData.length != 3) {
+                    logger.logWarning("Wrong number of arguments for --fahrerDatum");
+                }else {
+                    outputList(importObj.findDriverByVehicleIDandDate(argumentData[1], argumentData[2]));
+                }
+                break;
+            default:
+                logger.logInfo("default Case of command Mapping selected: Command could not be processed \n Check spelling or try again");
+                break;
+        }
 
     }
 
@@ -108,28 +87,32 @@ public class Main {
         }
     }
 
+    /**
+     * Splitting the arguments to get the command and the rest.
+     * @param argument
+     * @return String[] with the command and the given Values.
+     */
     public static String[] getArgsData(String[] argument) {
-        //First splitting Command form Data
-        String[] argData = argument[0].split("=",2);
+        if (argument == null || argument.length == 0 || argument[0] == null) {
+            return null; // Sicherstellen, dass kein Fehler entsteht
+        }
 
-        //Further splitting Data in Array
-        for (String data : argData) {
-            if (data.contains(";")) {
-                argData = data.split(";");
-            } else {
-                argData[0] = data;
-            }
+        List<String> resultList = new ArrayList<>();
+
+        // Teile in "command" und "rest"
+        String[] commandData = argument[0].split("=", 2);
+        if (commandData.length != 2) {
+            return new String[0]; // Ungültiges Format
         }
-        for (int i = 0; i < argData.length; i++) {
-            System.out.println("argData[" + i + "]: " + argData[i]);
-        }
-        return argData == null ? new String[0] : argData;
+
+        // Füge den Befehl hinzu
+        resultList.add(commandData[0]);
+
+        // Teile den Rest nach ";"
+        String[] values = commandData[1].split(";");
+        resultList.addAll(Arrays.asList(values));
+
+        // Rückgabe als Array
+        return resultList.toArray(new String[0]);
     }
-//
-//    private static String[] clearArgs(String[] args) {
-//        for (int i = 0; i < args.length; i++) {
-//            args[i] = args[i].trim().replace("\\s", "");
-//        }
-//        return args;
-//    }
 }

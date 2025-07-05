@@ -12,42 +12,36 @@ import java.time.format.DateTimeFormatter;
  * with custom formatting for application logs.
  */
 public class ApplicationLogger{
-    // Logger instances for different log levels
+    private static ApplicationLogger instance;
     private final Logger debugLogger;
 
-    //Initializes a new logger with console and file handlers
-    public ApplicationLogger() {
+    private ApplicationLogger() {
         this.debugLogger = Logger.getLogger("DebugLogger");
         setupLogger();
     }
 
+    public static ApplicationLogger getInstance() {
+        if (instance == null) {
+            instance = new ApplicationLogger();
+        }
+        return instance;
+    }
+
     public void setupLogger(){
         try {
-            //Crating rout to log File
-            Files.createDirectories(Paths.get("logs"));
-            String logFilePath = "logs/application.log";
-            // Set log level
-            debugLogger.setLevel(Level.ALL);
 
             // Create ConsoleHandler
             ConsoleHandler consoleHandler = new ConsoleHandler();
-            consoleHandler.setLevel(Level.INFO);
+            consoleHandler.setLevel(Level.ALL);
             consoleHandler.setFormatter(new SimpleFormatter());
-
-            // Create FileHandler
-            FileHandler fileHandler = new FileHandler(logFilePath, true);
-            //Finding way to set file path to filehandler.
-            fileHandler.setLevel(Level.ALL);
-            fileHandler.setFormatter(new SimpleFormatter());
 
             // Remove default handlers and add the custom handlers
             debugLogger.setUseParentHandlers(false);
-            debugLogger.addHandler(fileHandler);
             debugLogger.addHandler(consoleHandler);
 
             // Log message
             debugLogger.log(Level.INFO, "Initializing logger");
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

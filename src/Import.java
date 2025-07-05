@@ -22,7 +22,7 @@ public class Import {
     ApplicationLogger logger;
 
     public Import() {
-        logger = new ApplicationLogger();
+        logger = ApplicationLogger.getInstance();
         driverMap = new HashMap<>();
         vehicleMap = new HashMap<>();
         tripMap = new HashMap<>();
@@ -99,23 +99,19 @@ public class Import {
     //Fahrer suche
     public List<Driver> findDriverByNames(String name) {
         List<Driver> foundDrivers = new ArrayList<>();
-        String[] splitName;
+        String searchTerm = name.toLowerCase(); // Suchbegriff in Kleinbuchstaben umwandeln
 
-        if (name.contains(" ")) {
-            splitName = name.split(" ");
-        } else {
-            splitName = new String[]{name};
-        }
-
+        logger.logInfo("Searching for driver with term: " + searchTerm);
         for (Driver driver : driverMap.values()) {
-            String firstNameDriver = driver.getFirstName();
-            String lastNameDriver = driver.getLastName();
+            String firstNameDriver = driver.getFirstName().toLowerCase(); // Vorname des Fahrers in Kleinbuchstaben
+            String lastNameDriver = driver.getLastName().toLowerCase();   // Nachname des Fahrers in Kleinbuchstaben
 
-            if (firstNameDriver.contains(splitName[0]) ||
-                    (splitName.length > 1 && lastNameDriver.contains(splitName[1]))) {
+            // Prüfen, ob der Suchbegriff im Vor- oder Nachnamen enthalten ist
+            if (firstNameDriver.contains(searchTerm) || lastNameDriver.contains(searchTerm)) {
                 foundDrivers.add(driver);
             }
         }
+        logger.logInfo("Found " + foundDrivers.size() + " Drivers for this Name");
         return foundDrivers;
     }
 
@@ -130,6 +126,7 @@ public class Import {
                 foundVehicles.add(vehicle);
             }
         }
+        logger.logInfo("Found " + foundVehicles.size() + " Vehicles for this SearchTerm");
         return foundVehicles;
     }
 
@@ -154,7 +151,6 @@ public class Import {
                     //Checking if driver exists
                     if(driver != null) {
                         foundDriver.add(driver);
-                        return foundDriver;
                     }
                 }
             }
