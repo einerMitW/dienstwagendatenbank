@@ -23,7 +23,9 @@ public class Main {
         logger.logInfo("Import of Data in Projek done \n ------------");
 
         String argumentData[] = getArgsData(args);
-        logger.logDebug("Argument Data: " + Arrays.toString(argumentData));
+        for (String data : argumentData) {
+            logger.logInfo("Argument Data: " + data);
+        }
         if (argumentData == null || argumentData.length == 0) {
             logger.logWarning("No arguments found");
             return;
@@ -32,12 +34,12 @@ public class Main {
         switch (argumentData[0]) {
             case "--fahrersuche":
                 logger.logInfo("Case 01 of command Mapping selected: --fahrersuche");
-                System.out.println("=====Fahrersuche: Durchsucht alle Fahrer nach gesuchem Name=====");
+
                 outputList(importObj.findDriverByNames(argumentData[1]));
                 break;
             case "--fahrzeugsuche":
                 logger.logInfo("Case 02 of command Mapping selected: --fahrzeugsuche");
-                System.out.println("=====Fahrzeugsuche: Findet Fahrzeuge nach suchbegriff=====");
+
                 outputList(importObj.findVehicleBySearchTerm(argumentData[1]));
                 break;
             case "--fahrerZeitpunkt":
@@ -45,7 +47,7 @@ public class Main {
                 if (argumentData.length != 3) {
                     logger.logWarning("Wrong number of arguments for --fahrerZeitpunkt");
                 } else {
-                    System.out.println("=====Blitzer: Herausfinden welcher Fahrer ein Fahrzeug zu einem bestimmten Zeitpunkt verwendet hat =====");
+
                     outputList(importObj.findDriverByVehicleIDandDate(argumentData[1], argumentData[2]));
                 }
                 break;
@@ -54,7 +56,7 @@ public class Main {
                 if (argumentData.length != 3) {
                     logger.logWarning("Wrong number of arguments for --fahrerDatum");
                 } else {
-                    System.out.println("=====FahrerDatum: Fahrer mit gleichem Fahrzeugen am selben Tag=====");
+
                     outputList(importObj.getUsersVehicleByDateAndDriverID(argumentData[1], argumentData[2]));
                 }
                 break;
@@ -101,6 +103,7 @@ public class Main {
 
         // Teile in "command" und "rest"
         String[] commandData = argument[0].split("=", 2);
+
         if (commandData.length != 2) {
             return new String[0]; // Ungültiges Format
         }
@@ -108,11 +111,15 @@ public class Main {
         // Füge den Befehl hinzu
         resultList.add(commandData[0]);
 
+        // Bereinige die Werte von Anführungszeichen
+        String cleanedValues = commandData[1].replace("\"", "");
+
         // Teile den Rest nach ";"
-        String[] values = commandData[1].split(";");
+        String[] values = cleanedValues.split(";");
         resultList.addAll(Arrays.asList(values));
 
         // Rückgabe als Array
         return resultList.toArray(new String[0]);
     }
+
 }
