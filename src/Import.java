@@ -12,6 +12,11 @@ import Data.Driver;
 import Data.Trip;
 import Data.Vehicle;
 
+/**
+ * Handles the loading, parsing, and searching of data from the vehicle database file.
+ * This class is responsible for populating the data models from a flat file
+ * and providing public methods to query this data.
+ */
 public class Import {
     //    private Driver driver;
 //    private Trip trip;
@@ -21,6 +26,11 @@ public class Import {
     Map<String, Trip> tripMap;
     ApplicationLogger logger;
 
+    /**
+     * Constructs an Import instance, which triggers the reading and parsing of the
+     * vehicle database file. It initializes the data structures and logs any
+     * file-related errors that occur during the process.
+     */
     public Import() {
         logger = ApplicationLogger.getInstance();
         driverMap = new HashMap<>();
@@ -40,6 +50,13 @@ public class Import {
         }
     }
 
+    /**
+     * Parses a single line from the database file and creates the corresponding
+     * data object (Driver, Vehicle, or Trip). It uses the structure of the line
+     * (number of columns, prefixes) to determine the object type and prevent duplicates.
+     *
+     * @param rawLine A single, unprocessed line of text from the data file.
+     */
     private void saveData(String rawLine) {
         String[] data = clearData(rawLine);
         int datalen = data.length;
@@ -82,11 +99,19 @@ public class Import {
         }
     }
 
+    /**
+     * Cleans and tokenizes a raw string read from the data file.
+     * This method prepares the string for parsing by removing irrelevant characters
+     * and splitting it into distinct fields based on a delimiter.
+     *
+     * @param rawData The raw string line to be processed.
+     * @return A string array containing the cleaned and separated data fields.
+     */
     private String[] clearData(String rawData) {
         //Is ist better to worke whith global Array hear?
         String[] splitData;
         if (!rawData.startsWith("New_Entity")) {
-            //replace whitspace with regex \\s to null
+            //replace whitspace with regex \s to null
             rawData = rawData.replace("\\s", "");
             splitData = rawData.split(",");
             return splitData;
@@ -95,7 +120,13 @@ public class Import {
         }
     }
 
-    //Fahrer suche
+    /**
+     * Finds all drivers whose first or last name partially or fully matches a given search term.
+     * The search is performed in a case-insensitive manner.
+     *
+     * @param name The search term to match against driver names.
+     * @return A List of {@code Driver} objects matching the criteria. Returns an empty list if no match is found.
+     */
     public List<Driver> findDriverByNames(String name) {
         List<Driver> foundDrivers = new ArrayList<>();
         String searchTerm = name.toLowerCase(); // Suchbegriff in Kleinbuchstaben umwandeln
@@ -115,7 +146,13 @@ public class Import {
         return foundDrivers;
     }
 
-    //Fahrzeug suche
+    /**
+     * Finds all vehicles that match a given search term. The search includes the
+     * vehicle's manufacturer, brand name, and license plate.
+     *
+     * @param searchTerm The value to search for in the vehicle attributes.
+     * @return A List of {@code Vehicle} objects matching the criteria. Returns an empty list if no match is found.
+     */
     public List<Vehicle> findVehicleBySearchTerm(String searchTerm) {
         //List of all found Objects whith sertch Propertys
         List<Vehicle> foundVehicles = new ArrayList<>();
@@ -130,10 +167,14 @@ public class Import {
         return foundVehicles;
     }
 
-    //Feature1
-    //New_Entity:fahrerId,fahrzeugId,startKm,endKm,startzeit,endzeit
-    //F029,V001,156127,156383,2024-01-01T18:17:53,2024-01-01T20:08:53
-    public List<Driver> findDriverByVehicleIDandDate(String vehicleLicencPlate, String date) {
+    /**
+     * Retrieves a list of drivers who used a specific vehicle, identified by its license plate, on a given date.
+     *
+     * @param vehicleLicencePlate The license plate of the vehicle in question.
+     * @param date The specific date (as a string) to check for vehicle usage.
+     * @return A List of {@code Driver} objects who drove the specified vehicle on that day. Returns null if none are found.
+     */
+    public List<Driver> findDriverByVehicleIDandDate(String vehicleLicencePlate, String date) {
         List<Driver> foundDriver = new ArrayList<>();
 
         //loopin through trips to find all set parameters.
@@ -142,7 +183,7 @@ public class Import {
             Vehicle vehicle = vehicleMap.get(trip.getVehicleID());
 
             //Checking if vehicle found and if licence plate is equal.
-            if (vehicle != null && vehicle.getLicencePlate().equals(vehicleLicencPlate)) {
+            if (vehicle != null && vehicle.getLicencePlate().equals(vehicleLicencePlate)) {
 
                 //Checking if timeframe is correct.
                 if (timeWithin(trip.getStartTime(), trip.getEndTime(), date)) {
@@ -161,13 +202,14 @@ public class Import {
     }
 
     /**
-     * Compars if a Given Time is eaqual or within a timeframe
-     * Sertch Date can be given as Date oder Date and Time.
+     * Determines if a specific point in time falls within a given time interval.
+     * The check is inclusive of the start and end times. The method can handle
+     * both date-only strings and full date-time strings.
      *
-     * @param startTime
-     * @param endTime
-     * @param date
-     * @return boolean
+     * @param startTime The starting timestamp of the interval.
+     * @param endTime The ending timestamp of the interval.
+     * @param date The point in time to check.
+     * @return {@code true} if the time is within the interval, otherwise {@code false}.
      */
     private boolean timeWithin(String startTime, String endTime, String date) {
         //Parsing Date in fitting Format
@@ -203,14 +245,12 @@ public class Import {
     }
 
 
-    //Feature2
-
     /**
-     * Searches for all vehicles a driver had on one day, and all other drivers who used the same vehicle on the same day.
+     * Finds all other drivers who used the same vehicle(s) as a specified driver on a given day.
      *
-     * @param searchedDriverID The ID of the driver to search for.
-     * @param searchedDate     The date to search on (format: YYYY-MM-DD).
-     * @return A list of strings, where each string contains the name of another driver and the license plate of the shared vehicle.
+     * @param searchedDriverID The ID of the driver whose vehicle usage is the basis of the search.
+     * @param searchedDate The date on which to check for shared vehicle usage.
+     * @return A List of formatted strings, each detailing another driver and the license plate of the shared vehicle.
      */
     List<String> getUsersVehicleByDateAndDriverID(String searchedDriverID, String searchedDate) {
         Set<String> usedVehicleIDs = new HashSet<>();
