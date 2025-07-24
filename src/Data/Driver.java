@@ -28,4 +28,13 @@ public class Driver {
     public String getDrivingLicence() {
         return drivingLicence;
     }
+
+    @Override
+    public String toString() {
+        return "=== Fahrer ===\n" +
+               "Fahrer-ID: " + driverID + "\n" +
+               "Vorname: " + firstName + "\n" +
+               "Nachname: " + lastName + "\n" +
+               "Führerschein: " + drivingLicence;
+    }
 }

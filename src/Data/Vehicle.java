@@ -28,4 +28,13 @@ public class Vehicle {
     public String getManufacturer() {
         return manufacturer;
     }
+
+    @Override
+    public String toString() {
+        return "=== Fahrzeug ===\n" +
+               "Fahrzeug-ID: " + vID + "\n" +
+               "Hersteller: " + manufacturer + "\n" +
+               "Modell: " + vehicleBrand + "\n" +
+               "Kennzeichen: " + licencePlate;
+    }
 }

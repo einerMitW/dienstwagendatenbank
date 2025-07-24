@@ -40,11 +40,11 @@ public class Main {
                 if (argumentData.length != 3) {
                     logger.logWarning("Wrong number of arguments for --fahrerDatum");
                 }else {
-                    outputList(importObj.findDriverByVehicleIDandDate(argumentData[1], argumentData[2]));
+                    outputList(importObj.getUsersVehicleByDateAndDriverID(argumentData[1], argumentData[2]));
                 }
                 break;
             default:
-                logger.logInfo("default Case of command Mapping selected: Command could not be processed \n Check spelling or try again");
+                logger.logWarning("default Case of command Mapping selected: Command could not be processed \n Check spelling or try again");
                 break;
         }
 
@@ -54,32 +54,7 @@ public class Main {
         //Testing for null / no List objekt
         if (listedData != null && !listedData.isEmpty()) {
             for (Object data : listedData) {
-                //Output Driver obj
-                if (data instanceof Driver) {
-                    Driver driver = (Driver) data;
-                    System.out.println("=== Fahrer ===");
-                    System.out.println("Fahrer-ID: " + driver.getDriverID());
-                    System.out.println("Vorname: " + driver.getFirstName());
-                    System.out.println("Nachname: " + driver.getLastName());
-                    System.out.println("Führerschein: " + driver.getDrivingLicence());
-                } //output Trip obj
-//            else if (data instanceof Trip) {
-//                Trip trip = (Trip) data;
-//                System.out.println("=== Fahrt ===");
-//                System.out.println("Fahrer-ID: " + trip.getDriverID());
-//                System.out.println("Fahrzeug-ID: " + trip.getVehicleID());
-//                System.out.println("Start-Kilometer: " + trip.getStartKm());
-//                System.out.println("End-Kilometer: " + trip.getEndKm());
-//                System.out.println("Startzeit: " + trip.getStartTime());
-//                System.out.println("Endzeit: " + trip.getEndTime());
-//            } output Vehicle obj
-                else if (data instanceof Vehicle) {
-                    Vehicle vehicle = (Vehicle) data;
-                    System.out.println("=== Fahrzeug ===");
-                    System.out.println("Fahrzeug-ID: " + vehicle.getvID());
-                    System.out.println("Marke: " + vehicle.getVehicleBrand());
-                    System.out.println("Kennzeichen: " + vehicle.getLicencePlate());
-                }
+                System.out.println(data);
                 System.out.println("-------------------");
             }
         } else {

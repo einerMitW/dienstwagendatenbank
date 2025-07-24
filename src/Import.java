@@ -70,10 +70,9 @@ public class Import {
                 //Creating Trip OBJ
                 Trip trip = new Trip(data[0], data[1], Integer.parseInt(data[2]), Integer.parseInt(data[3]), data[4], data[5]);
                 //Check if Trip is allready existing true combined Primary Key
-
-                if (tripMap.get(data[0] +"_"+ data[1] +"_"+ data[4]) == null) {
+                if (tripMap.get(data[0] + "_" + data[1] + "_" + data[4]) == null) {
                     //Putting trip in Hash map. Combinded Key
-                    tripMap.put(data[0] +"_"+ data[1] +"_"+ data[4], trip);
+                    tripMap.put(data[0] + "_" + data[1] + "_" + data[4], trip);
                 }
                 break;
 
@@ -107,7 +106,8 @@ public class Import {
             String lastNameDriver = driver.getLastName().toLowerCase();   // Nachname des Fahrers in Kleinbuchstaben
 
             // Prüfen, ob der Suchbegriff im Vor- oder Nachnamen enthalten ist
-            if (firstNameDriver.contains(searchTerm) || lastNameDriver.contains(searchTerm)) {
+            if (firstNameDriver.contains(searchTerm) ||
+                    lastNameDriver.contains(searchTerm)) {
                 foundDrivers.add(driver);
             }
         }
@@ -134,7 +134,6 @@ public class Import {
     //New_Entity:fahrerId,fahrzeugId,startKm,endKm,startzeit,endzeit
     //F029,V001,156127,156383,2024-01-01T18:17:53,2024-01-01T20:08:53
     public List<Driver> findDriverByVehicleIDandDate(String vehicleLicencPlate, String date) {
-        //even if only on driver can be found
         List<Driver> foundDriver = new ArrayList<>();
 
         //loopin through trips to find all set parameters.
@@ -149,7 +148,7 @@ public class Import {
                 if (timeWithin(trip.getStartTime(), trip.getEndTime(), date)) {
                     Driver driver = driverMap.get(trip.getDriverID());
                     //Checking if driver exists
-                    if(driver != null) {
+                    if (driver != null) {
                         foundDriver.add(driver);
                     }
                 }
@@ -164,6 +163,7 @@ public class Import {
     /**
      * Compars if a Given Time is eaqual or within a timeframe
      * Sertch Date can be given as Date oder Date and Time.
+     *
      * @param startTime
      * @param endTime
      * @param date
@@ -206,46 +206,64 @@ public class Import {
     //Feature2
 
     /**
-     * Sertches for all vehicles a Driver had one day. An all other who used the same Vehicle the same day.
-     * @param searchedDriverID
-     * @param searchedDate
-     * @return List of Driver and Licencplat of Vehicle as List
+     * Searches for all vehicles a driver had on one day, and all other drivers who used the same vehicle on the same day.
+     *
+     * @param searchedDriverID The ID of the driver to search for.
+     * @param searchedDate     The date to search on (format: YYYY-MM-DD).
+     * @return A list of strings, where each string contains the name of another driver and the license plate of the shared vehicle.
      */
-    List <String> getUsersVehicleByDateAndDriverID(String searchedDriverID, String searchedDate){
-        List<Driver> foundOtherDrivers = new ArrayList<>();
-        List<Vehicle> foundUsedVehicles = new ArrayList<>();
-        Map <String, String> ergHash = new HashMap<>();
-        List<String> ergList = new ArrayList<>();
+    List<String> getUsersVehicleByDateAndDriverID(String searchedDriverID, String searchedDate) {
+        Set<String> usedVehicleIDs = new HashSet<>();
+        List<String> resultList = new ArrayList<>();
+        LocalDate searchDate;
 
-        //Sertching all Trips form driver and date to find alle used Vehicles
-        for(Trip trip : tripMap.values()){
-            if(trip.getDriverID().equals(searchedDriverID) && trip.getStartTime().contains(searchedDate)){
-                foundUsedVehicles.add(vehicleMap.get(trip.getVehicleID()));
+        try {
+            searchDate = LocalDate.parse(searchedDate);
+        } catch (DateTimeParseException e) {
+            logger.logError("Invalid date format for search: " + searchedDate, e);
+            return resultList; // Return empty list if date is invalid
+        }
+
+        // Step 1: Find all unique vehicle IDs used by the searched driver on the given date.
+        for (Trip trip : tripMap.values()) {
+            LocalDate tripDate = LocalDateTime.parse(trip.getStartTime()).toLocalDate();
+            if (trip.getDriverID().equals(searchedDriverID) && tripDate.equals(searchDate)) {
+                usedVehicleIDs.add(trip.getVehicleID());
             }
         }
 
-        //Checking all driven vehickels, by serched Driver for other dirvers in same Timeframe
-        for (Vehicle foundvehicle :foundUsedVehicles) {
-            for(Trip trip : tripMap.values()){
-                //The other Drivers has the same vehicle id and Timeframe for ther Trip
-                if (foundvehicle.getvID().equals(trip.getVehicleID()) && !trip.getDriverID().equals(searchedDriverID) && trip.getStartTime().contains(searchedDate)){
-                    Driver otherDriver = driverMap.get(trip.getDriverID());
-                    //Checking if the found driver exists.
-                    if (otherDriver != null) {
-                        foundOtherDrivers.add(driverMap.get(trip.getDriverID()));
-                        //Mapping Driver and Vehicel in ergList ready to return
-                        String erg = otherDriver.getFirstName() + " " + otherDriver.getLastName() + "(" + foundvehicle.getLicencePlate() + ")";
-                        ergList.add(erg);
-                    }else logger.logWarning("Found driver is not in Driver Database");
+        if (usedVehicleIDs.isEmpty()) {
+            logger.logInfo("No vehicles found for driver " + searchedDriverID + " on " + searchedDate);
+            return resultList;
+        }
 
+        // Step 2: Find all other drivers who used any of those vehicles on the same day.
+        for (Trip trip : tripMap.values()) {
+            LocalDate tripDate = LocalDateTime.parse(trip.getStartTime()).toLocalDate();
+            // Check if the trip is on the same day, involves one of the used vehicles, but is by a different driver.
+            if (tripDate.equals(searchDate) && usedVehicleIDs.contains(trip.getVehicleID()) && !trip.getDriverID().equals(searchedDriverID)) {
+                Driver otherDriver = driverMap.get(trip.getDriverID());
+                Vehicle vehicle = vehicleMap.get(trip.getVehicleID());
+
+                if (otherDriver != null && vehicle != null) {
+                    String resultString = otherDriver.getFirstName() + " " + otherDriver.getLastName() + " (" + vehicle.getLicencePlate() + ")";
+                    // Avoid adding duplicate entries
+                    if (!resultList.contains(resultString)) {
+                        resultList.add(resultString);
+                    }
+                } else {
+                    if (otherDriver == null) {
+                        logger.logWarning("Found trip with a driver ID that is not in the driver database: " + trip.getDriverID());
+                    }
+                    if (vehicle == null) {
+                        logger.logWarning("Found trip with a vehicle ID that is not in the vehicle database: " + trip.getVehicleID());
+                    }
                 }
             }
         }
 
-        logger.logInfo("Found: " + foundOtherDrivers.size() + " other drivers");
-        return ergList;
-
-        //Next step
+        logger.logInfo("Found: " + resultList.size() + " other drivers using the same vehicles on " + searchedDate);
+        return resultList;
     }
 
 
