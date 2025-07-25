@@ -22,10 +22,10 @@ public class Import {
     //    private Driver driver;
 //    private Trip trip;
 //    private Vehicle vehicle;
-    Map<String, Driver> driverMap;
-    Map<String, Vehicle> vehicleMap;
-    Map<String, Trip> tripMap;
-    ApplicationLogger logger;
+    public Map<String, Driver> driverMap;
+    public Map<String, Vehicle> vehicleMap;
+    public Map<String, Trip> tripMap;
+    public ApplicationLogger logger;
 
     /**
      * Constructs an app.Import instance, which triggers the reading and parsing of the

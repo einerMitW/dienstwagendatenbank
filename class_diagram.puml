@@ -1,0 +1,106 @@
+@startuml
+' Diagram settings
+skinparam classAttributeIconSize 0
+hide empty members
+
+title Klassendiagramm: Dienstwagendatenbank
+
+class Main {
+  + {static} void main(String[] args)
+  + {static} void outputList(List<?> listedData)
+  + {static} String[] getArgsData(String[] argument)
+}
+
+class Import {
+  + Map<String, Driver> driverMap
+  + Map<String, Vehicle> vehicleMap
+  + Map<String, Trip> tripMap
+  + ApplicationLogger logger
+  + Import()
+  - void saveData(String rawLine)
+  - String[] clearData(String rawData)
+  + List<Driver> findDriverByNames(String name)
+  + List<Vehicle> findVehicleBySearchTerm(String searchTerm)
+  + List<Driver> findDriverByVehicleIDandDate(String vehicleLicencePlate, String date)
+  + List<String> getUsersVehicleByDateAndDriverID(String searchedDriverID, String searchedDate)
+  - boolean timeWithin(String startTime, String endTime, String date)
+}
+
+class ApplicationLogger {
+  - {static} ApplicationLogger instance
+  - final Logger debugLogger
+  - ApplicationLogger()
+  + {static} ApplicationLogger getInstance()
+  + void setupLogger()
+  + void logDebug(String message)
+  + void logInfo(String message)
+  + void logWarning(String message)
+  + void logSevere(String message)
+  + void logError(String message, Throwable thrown)
+}
+
+class ProjektTester {
+    - {static} final String MAIN_CLASS
+    - {static} String line
+    + {static} void main(String[] args)
+    - {static} boolean passedTestNetzwerk(String arg, String outputEquals)
+}
+
+package "Data" {
+  class Driver {
+    - String driverID
+    - String firstName
+    - String lastName
+    - String drivingLicence
+    + Driver(String, String, String, String)
+    + String getDriverID()
+    + String getFirstName()
+    + String getLastName()
+    + String getDrivingLicence()
+    + String toString()
+  }
+
+  class Vehicle {
+    - String vID
+    - String manufacturer
+    - String vehicleBrand
+    - String licencePlate
+    + Vehicle(String, String, String, String)
+    + String getvID()
+    + String getManufacturer()
+    + String getVehicleBrand()
+    + String getLicencePlate()
+    + String toString()
+  }
+
+  class Trip {
+    - String driverID
+    - String vehicleID
+    - int startKm
+    - int endKm
+    - String startTime
+    - String endTime
+    + Trip(String, String, int, int, String, String)
+    + String getDriverID()
+    + String getVehicleID()
+    + int getStartKm()
+    + int getEndKm()
+    + String getStartTime()
+    + String getEndTime()
+  }
+}
+
+' Relationships
+Main ..> Import : uses
+Main ..> ApplicationLogger : uses
+ProjektTester ..> Main : uses
+
+Import o-- "*" Driver
+Import o-- "*" Vehicle
+Import o-- "*" Trip
+Import ..> ApplicationLogger : uses
+
+Trip ..> Driver : uses
+Trip ..> Vehicle : uses
+
+@enduml
