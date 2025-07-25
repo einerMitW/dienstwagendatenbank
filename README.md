@@ -38,11 +38,55 @@ Dienstwagendatenbank/
 
 ## Installation und Setup
 
-### Voraussetzungen
+### Docker-Nutzung (Empfohlen)
+
+Für eine einfache und plattformunabhängige Ausführung kann die Anwendung mit Docker containerisiert werden. Eine `Dockerfile` ist im Projekt enthalten.
+
+**Voraussetzungen:**
+- **Docker:** Muss auf dem System installiert sein.
+
+**1. Docker-Image erstellen:**
+
+Navigieren Sie in das Hauptverzeichnis des Projekts und führen Sie den folgenden Befehl aus, um das Docker-Image zu erstellen:
+
+```bash
+docker build -t dienstwagen-app .
+```
+- **`docker build`**: Der Befehl zum Starten des Build-Prozesses.
+- **`-t dienstwagen-app`**: Das `-t` (Tag) Flag gibt dem Image einen Namen (hier: `dienstwagen-app`), damit es später einfach referenziert werden kann.
+- **`.`**: Gibt den Build-Kontext an (das aktuelle Verzeichnis), in dem sich die `Dockerfile` befindet.
+
+**2. Docker-Container ausführen:**
+
+Sobald das Image erstellt ist, können Sie einen Container daraus starten und die Anwendungsargumente direkt anhängen.
+
+```bash
+docker run --rm dienstwagen-app <Befehl>
+```
+- **`docker run`**: Der Befehl zum Starten eines Containers aus einem Image.
+- **`--rm`**: Dieses Flag sorgt dafür, dass der Container nach der Ausführung automatisch gelöscht wird. Das ist praktisch, um das System sauber zu halten.
+- **`dienstwagen-app`**: Der Name des Images, das gestartet werden soll.
+- **`<Befehl>`**: Ersetzen Sie dies durch einen der unter [Nutzung](#nutzung) beschriebenen Befehle.
+
+**Beispiele:**
+
+- **Fahrersuche:**
+  ```bash
+  docker run --rm dienstwagen-app --fahrersuche="Hoff"
+  ```
+
+- **Geblitzt:**
+  ```bash
+  docker run --rm dienstwagen-app --fahrerZeitpunkt="S-MN-9932;2024-02-14T13:57:43"
+  ```
+
+### Manuelle Kompilierung (Alternativ)
+
+**Voraussetzungen**
 - **Java Development Kit (JDK):** Version 11 oder höher.
 - **JUnit 5:** Für die Ausführung der Unit-Tests wird die `junit-platform-console-standalone` JAR-Datei benötigt.
 
-### Kompilierung
+**Kompilierung**
 1.  Navigieren Sie in das Hauptverzeichnis des Projekts.
 2.  Erstellen Sie ein Verzeichnis für die kompilierten Klassen (z.B. `out`).
     ```bash
@@ -81,20 +125,22 @@ Die Befehle werden als Argumente an die `Main`-Klasse übergeben.
     *   Format: `--fahrerDatum="<FahrerID>;<Datum>"`
     *   Beispiel: `java -cp out app.Main --fahrerDatum="F003;2024-08-13"`
 
+
 ## Tests
 
-Das Projekt enthält zwei Arten von Tests:
+Das Projekt enthält zwei Arten von Tests, die über die Kommandozeile aus dem **Hauptverzeichnis des Projekts** ausgeführt werden können:
 
 1.  **End-to-End-Tests (`ProjektTester`):**
-    Diese Klasse testet die Hauptfeatures durch Aufruf der `main`-Methode mit vordefinierten Argumenten und überprüft die Konsolenausgabe.
+    Diese Klasse testet die Hauptfeatures durch Aufruf der `main`-Methode mit vordefinierten Argumenten und überprüft die Konsolenausgabe. Dies ist ein direkter Java-Aufruf.
     ```bash
     java -cp out app.ProjektTester
     ```
 
 2.  **Unit-Tests (`ImportTest`):**
-    Diese Klasse verwendet JUnit 5, um die Methoden der `Import`-Klasse zu testen. Zur Ausführung wird die JUnit Platform Console Standalone JAR benötigt.
+    Diese Klasse verwendet JUnit 5, um die Methoden der `Import`-Klasse zu testen. Zur Ausführung wird die `junit-platform-console-standalone` JAR-Datei benötigt, die separat heruntergeladen werden muss (kein Installationsbefehl).
     ```bash
-    # Ersetzen Sie <VERSION> durch Ihre Version der JAR
+    # Ersetzen Sie <VERSION> durch Ihre Version der JAR und passen Sie den Pfad an.
+    # Stellen Sie sicher, dass die JAR-Datei im Projekt-Hauptverzeichnis oder einem bekannten Pfad liegt.
     # Windows
     java -jar junit-platform-console-standalone-<VERSION>.jar -cp "out;." --scan-classpath
 
@@ -102,4 +148,3 @@ Das Projekt enthält zwei Arten von Tests:
     java -jar junit-platform-console-standalone-<VERSION>.jar -cp "out:." --scan-classpath
     ```
 
-```
