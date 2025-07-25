@@ -38,7 +38,7 @@ public class Import {
         vehicleMap = new HashMap<>();
         tripMap = new HashMap<>();
 
-        final String filePath = "C:\\DHBW\\Semester2\\Java-Programmierung\\Dienstwagendatenbank\\vehicleDB.txt";
+        final String filePath = "vehicleDB.txt";
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
             while ((line = reader.readLine()) != null) {

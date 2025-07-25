@@ -1,0 +1,15 @@
+# Ignore Git and IDE specific files
+.git
+.idea
+*.iml
+
+# Ignore documentation and diagram files
+*.pdf
+*.puml
+
+# Ignore test code
+src/test
+
+# Ignore Docker specific files
+.dockerignore
+Dockerfile
