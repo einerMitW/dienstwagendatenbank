@@ -1,11 +1,6 @@
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+package app;
+
 import java.util.logging.*;
-import java.util.logging.Formatter;
-import java.nio.file.Path;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 /**
  * A basic logger implementation that provides console and file logging capabilities

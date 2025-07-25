@@ -1,12 +1,13 @@
+package app;
+
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 public class ProjektTester {
     // Konfiguration eurer Hauptklasse. Bitte vollqualifizierten Klassennamen plus Paket angeben.
     // Z.b. die Klasse MeinProjekt im Paket dhbw.java, muss lauten: 'dhbw.java.MeinProjekt'
-    private static final String MAIN_CLASS = "Main";
+    private static final String MAIN_CLASS = "app.Main";
     private static String line;
 
     public static void main(String[] args) {
@@ -48,7 +49,7 @@ public class ProjektTester {
             mainMethod.invoke(null, (Object) args);
         } catch (Exception e) {
             e.printStackTrace();
-            System.err.println("Main Klasse konnte nicht geladen werden, bitte Konfiguration prÃ¼fen.");
+            System.err.println("app.Main Klasse konnte nicht geladen werden, bitte Konfiguration prÃ¼fen.");
             System.exit(1);
         } finally {
             // System.out wieder zurÃ¼cksetzen

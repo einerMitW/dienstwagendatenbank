@@ -1,12 +1,11 @@
-import Data.Driver;
-import Data.Vehicle;
+package app;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 /**
- * Main class of the company car management application.
+ * app.Main class of the company car management application.
  * It proccesses command-line arguents to perform various searches on the vehicle database.
  */
 public class Main {
@@ -20,15 +19,15 @@ public class Main {
     public static void main(String[] args) {
         ApplicationLogger logger = ApplicationLogger.getInstance();
         Import importObj = new Import();
-        logger.logInfo("Import of Data in Projek done \n ------------");
+        logger.logInfo("app.Import of Data in Projek done \n ------------");
 
         String argumentData[] = getArgsData(args);
-        for (String data : argumentData) {
-            logger.logInfo("Argument Data: " + data);
-        }
         if (argumentData == null || argumentData.length == 0) {
             logger.logWarning("No arguments found");
             return;
+        }
+        for (String data : argumentData) {
+            logger.logInfo("Argument Data: " + data);
         }
 
         switch (argumentData[0]) {

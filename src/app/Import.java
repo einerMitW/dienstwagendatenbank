@@ -1,3 +1,5 @@
+package app;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -6,7 +8,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.*;
-import java.util.logging.Logger;
 
 import Data.Driver;
 import Data.Trip;
@@ -27,7 +28,7 @@ public class Import {
     ApplicationLogger logger;
 
     /**
-     * Constructs an Import instance, which triggers the reading and parsing of the
+     * Constructs an app.Import instance, which triggers the reading and parsing of the
      * vehicle database file. It initializes the data structures and logs any
      * file-related errors that occur during the process.
      */
@@ -252,7 +253,7 @@ public class Import {
      * @param searchedDate The date on which to check for shared vehicle usage.
      * @return A List of formatted strings, each detailing another driver and the license plate of the shared vehicle.
      */
-    List<String> getUsersVehicleByDateAndDriverID(String searchedDriverID, String searchedDate) {
+    public List<String> getUsersVehicleByDateAndDriverID(String searchedDriverID, String searchedDate) {
         Set<String> usedVehicleIDs = new HashSet<>();
         List<String> resultList = new ArrayList<>();
         LocalDate searchDate;
