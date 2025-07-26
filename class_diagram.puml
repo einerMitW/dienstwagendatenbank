@@ -1,4 +1,4 @@
-@startuml
+                   @startuml
 ' Diagram settings
 skinparam classAttributeIconSize 0
 hide empty members
@@ -102,5 +102,19 @@ Import ..> ApplicationLogger : uses
 
 Trip ..> Driver : uses
 Trip ..> Vehicle : uses
+
+package "test" {
+  class ImportTest {
+    - Import importobj
+    + void setUp()
+    + void testFindDriverByNames()
+    + void testFindVehicleBySearchTerm_findsByLicensePlate()
+    + void testFindVehicleBySearchTerm_findsByManufacturer()
+    + void testFindDriverByVehicleIDandDate()
+    + void getUsersVehicleByDateAndDriverID()
+  }
+}
+
+ImportTest ..> Import : uses
 
 @enduml

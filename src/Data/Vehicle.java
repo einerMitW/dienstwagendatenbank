@@ -67,10 +67,10 @@ public class Vehicle {
      */
     @Override
     public String toString() {
-        return "=== Fahrzeug ===" + "\n"+
-               "Fahrzeug-ID: " + vID + "\n" +
-               "Hersteller: " + manufacturer + "\n" +
-               "Modell: " + vehicleBrand + "\n" +
-               "Kennzeichen: " + licencePlate;
+        return "=== Fahrzeug ===" + "\n" +
+                "Fahrzeug-ID: " + vID + "\n" +
+                "Hersteller: " + manufacturer + "\n" +
+                "Modell: " + vehicleBrand + "\n" +
+                "Kennzeichen: " + licencePlate;
     }
 }
