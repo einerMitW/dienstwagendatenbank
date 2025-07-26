@@ -35,6 +35,12 @@ Dienstwagendatenbank/
 ├───vehicleDB.txt                   # Rohdatendatei
 └───...
 ```
+## Wichtiger Hinweis zur Datendatei
+
+Die Anwendung liest ihre Daten aus der Datei `vehicleDB.txt`. Es ist entscheidend, dass diese Datei sich immer im **aktuellen Arbeitsverzeichnis (Current Working Directory - CWD)** befindet, wenn die Java-Anwendung ausgeführt wird. Andernfalls kann die Anwendung die Daten nicht finden und es kommt zu einem Fehler.
+
+Stellen Sie bei der manuellen Ausführung oder in Docker sicher, dass das CWD entsprechend gesetzt ist oder die Datei dorthin kopiert wird.
+
 
 ## Installation und Setup
 
@@ -125,7 +131,6 @@ Die Befehle werden als Argumente an die `Main`-Klasse übergeben.
     *   Format: `--fahrerDatum="<FahrerID>;<Datum>"`
     *   Beispiel: `java -cp out app.Main --fahrerDatum="F003;2024-08-13"`
 
-
 ## Tests
 
 Das Projekt enthält zwei Arten von Tests, die über die Kommandozeile aus dem **Hauptverzeichnis des Projekts** ausgeführt werden können:
@@ -147,4 +152,3 @@ Das Projekt enthält zwei Arten von Tests, die über die Kommandozeile aus dem *
     # Linux / macOS
     java -jar junit-platform-console-standalone-<VERSION>.jar -cp "out:." --scan-classpath
     ```
-
