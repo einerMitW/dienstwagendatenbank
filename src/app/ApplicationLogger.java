@@ -6,7 +6,7 @@ import java.util.logging.*;
  * A basic logger implementation that provides console and file logging capabilities
  * with custom formatting for application logs.
  */
-public class ApplicationLogger{
+public class ApplicationLogger {
     private static ApplicationLogger instance;
     private final Logger debugLogger;
 
@@ -22,7 +22,7 @@ public class ApplicationLogger{
         return instance;
     }
 
-    public void setupLogger(){
+    public void setupLogger() {
         try {
 
             // Create ConsoleHandler

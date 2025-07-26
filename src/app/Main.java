@@ -91,7 +91,7 @@ public class Main {
      *
      * @param argument The argument array received from the main method.
      * @return A String array where the first element is the command and subsequent elements are the values.
-     *         Returns an empty array for an invalid format or null for missing arguments.
+     * Returns an empty array for an invalid format or null for missing arguments.
      */
     public static String[] getArgsData(String[] argument) {
         if (argument == null || argument.length == 0 || argument[0] == null) {

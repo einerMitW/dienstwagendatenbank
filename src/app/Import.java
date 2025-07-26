@@ -1,9 +1,6 @@
 package app;
 
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
@@ -38,6 +35,7 @@ public class Import {
         vehicleMap = new HashMap<>();
         tripMap = new HashMap<>();
 
+        //Extramly importatit that vehicleDB.txt is in CWD of project.
         final String filePath = "vehicleDB.txt";
         try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
             String line;
